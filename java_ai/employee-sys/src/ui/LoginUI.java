@@ -1,14 +1,31 @@
 package ui;
 
+import bean.User;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 
-public class LoginUI extends JFrame {
-    private JTextField usernameField;
+
+// ActionListener是一个接口，用于处理事件
+public class LoginUI extends JFrame implements ActionListener {
+    private JTextField loginNameField;
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton registerButton;
+
+    // define a static set to store the login user
+    private static ArrayList<User> allUsers = new ArrayList<>() ;
+
+    // initialize several users
+    static {
+        allUsers.add(new User("admin", "123456", "admin"));
+        allUsers.add(new User("user", "123456", "user"));
+    }
+
     public LoginUI() {
         super("Login");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 设置关闭方式
@@ -37,10 +54,10 @@ public class LoginUI extends JFrame {
         panel.add(usernameLabel);
 
         // the input field for username
-        usernameField = new JTextField();
-        usernameField.setBounds(120, 70, 150, 30);
-        usernameField.setFont(font);
-        panel.add(usernameField);
+        loginNameField = new JTextField();
+        loginNameField.setBounds(120, 70, 150, 30);
+        loginNameField.setFont(font);
+        panel.add(loginNameField);
 
         // 密码标签
         JLabel passwordLabel = new JLabel("Password:");
@@ -61,6 +78,7 @@ public class LoginUI extends JFrame {
         loginButton.setBackground(primaryColor);
         loginButton.setForeground(Color.WHITE);
         panel.add(loginButton);
+        loginButton.addActionListener(this);
 
         // the register button
         registerButton = new JButton("Register");
@@ -69,9 +87,55 @@ public class LoginUI extends JFrame {
         registerButton.setBackground(secondaryColor);
         registerButton.setForeground(Color.BLACK);
         panel.add(registerButton);
+        registerButton.addActionListener(this);
 
         // add the panel to the frame
         this.add(panel);
         this.setVisible(true);
     }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // judge which button is clicked, login or register
+        JButton btn = (JButton) e.getSource(); // change the source to JButton forcely
+        if (btn == loginButton) {
+            System.out.println("Login button clicked");
+            // independent method should be called
+            login();
+        }else{
+            System.out.println("Register button clicked");
+            register();
+        }
+    }
+    private void login(){
+        String loginName = loginNameField.getText();
+        String password = new String(passwordField.getPassword());
+        // find the user by loginName
+        User user = getUserByLoginName(loginName);
+        if (user != null){
+            if (user.getPassword().equals(password)){
+                System.out.println("Login successful");
+                // open the employee manager ui
+                new EmployeeManagerUI();
+                this.dispose();
+            }else{
+                System.out.println("Login failed");
+                JOptionPane.showMessageDialog(this, "Login failed");
+            }
+        }else{
+            System.out.println("User not found");
+        }
+    }
+    private User getUserByLoginName(String loginName){
+        for (User user : allUsers) {
+            if (user.getLoginName().equals(loginName)) {
+                return user;
+            }
+        }
+        return null;
+    }
+    private void register(){
+
+    }
+
 }
