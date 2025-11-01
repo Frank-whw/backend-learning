@@ -1,27 +1,36 @@
 package ui;
 
+import bean.Employee;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.Vector;
 
-public class EmployeeManagerUI extends JFrame {
+public class EmployeeManagerUI extends JFrame{
     private JTextField searchField; // 搜索框
     private JButton searchButton;
     private JButton addButton;
     private JTable employeeTable; // 表格
     private DefaultTableModel tableModel;
 
+    // use a static set to store all employees
+    private static ArrayList<Employee> allEmployees = new ArrayList<>();
+
     // 定义列名
     private String[] columnNames = {"ID", "姓名", "部门", "职位", "薪资"};
 
-    public EmployeeManagerUI() {
-        initializeComponents();
-        setupLayout();
-        setupEventListeners();
-        populateSampleData();
-        setFrameProperties();
+    public EmployeeManagerUI(String UserName) {
+        initializeComponents(); // 初始化组件
+        setupLayout(); // 设置布局
+        setupEventListeners(); // 设置事件监听器
+        populateSampleData(); // 填充示例数据
+        setFrameProperties(); // 设置窗体属性
+        super.setTitle("Welcome," + UserName);
+        this.setVisible( true);
+
     }
 
     private void initializeComponents() {
@@ -80,20 +89,14 @@ public class EmployeeManagerUI extends JFrame {
 
     private void setupEventListeners() {
         // 添加按钮事件
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showAddEmployeeDialog();
-            }
+        addButton.addActionListener(e -> {
+            // add employee
+            new AddEmployeeUI(this);
+            // pop up add employee dialog
+            JOptionPane.showMessageDialog(this, "添加成功！", "提示", JOptionPane.INFORMATION_MESSAGE);
+            this.dispose();
         });
 
-        // 搜索按钮事件
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performSearch();
-            }
-        });
 
         // 右键菜单
         employeeTable.addMouseListener(new MouseAdapter() {
@@ -108,13 +111,7 @@ public class EmployeeManagerUI extends JFrame {
             }
         });
 
-        // 回车搜索
-        searchField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performSearch();
-            }
-        });
+
     }
 
     private void handleTableMouseEvent(MouseEvent e) {
@@ -160,7 +157,7 @@ public class EmployeeManagerUI extends JFrame {
         tableModel.setRowCount(0);
         
         // 添加20个示例员工
-        for (int i = 1; i <= 20; i++) {
+        for (int i = 1; i <= 2; i++) {
             Vector<String> rowData = new Vector<>();
             rowData.add(String.valueOf(i));
             rowData.add("员工" + i);
@@ -249,8 +246,6 @@ public class EmployeeManagerUI extends JFrame {
                 rowData.add(position);
                 rowData.add(salary);
                 tableModel.addRow(rowData);
-
-                dialog.dispose();
             }
         });
 
@@ -302,32 +297,6 @@ public class EmployeeManagerUI extends JFrame {
         JButton confirmButton = new JButton("确定");
         JButton cancelButton = new JButton("取消");
 
-        confirmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 获取输入值
-                String newId = idField.getText().trim();
-                String newName = nameField.getText().trim();
-                String newDepartment = departmentField.getText().trim();
-                String newPosition = positionField.getText().trim();
-                String newSalary = salaryField.getText().trim();
-
-                // 简单验证
-                if (newId.isEmpty() || newName.isEmpty() || newDepartment.isEmpty() || newPosition.isEmpty() || newSalary.isEmpty()) {
-                    JOptionPane.showMessageDialog(dialog, "请填写所有字段", "提示", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                // 更新表格数据
-                tableModel.setValueAt(newId, row, 0);
-                tableModel.setValueAt(newName, row, 1);
-                tableModel.setValueAt(newDepartment, row, 2);
-                tableModel.setValueAt(newPosition, row, 3);
-                tableModel.setValueAt(newSalary, row, 4);
-
-                dialog.dispose();
-            }
-        });
 
         cancelButton.addActionListener(new ActionListener() {
             @Override
@@ -366,8 +335,15 @@ public class EmployeeManagerUI extends JFrame {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                new EmployeeManagerUI().setVisible(true);
+//                new EmployeeManagerUI().setVisible(true);
             }
         });
+    }
+
+    public void addEmployee(Employee  employee) {
+        // add employee to set
+        allEmployees.add(employee);
+        // add one row to table
+        tableModel.addRow(new Object[]{employee.getId(), employee.getName(), employee.getDepartment(), employee.getPosition(), employee.getSalary()});
     }
 }

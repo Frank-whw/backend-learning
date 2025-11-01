@@ -116,7 +116,7 @@ public class LoginUI extends JFrame implements ActionListener {
             if (user.getPassword().equals(password)){
                 System.out.println("Login successful");
                 // open the employee manager ui
-                new EmployeeManagerUI();
+                new EmployeeManagerUI(user.getLoginName());
                 this.dispose();
             }else{
                 System.out.println("Login failed");
